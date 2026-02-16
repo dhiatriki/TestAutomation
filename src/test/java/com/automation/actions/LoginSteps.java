@@ -28,16 +28,18 @@ public class LoginSteps {
 
     @When("je saisis username {string}")
     public void enter_username(String user) {
-        // Locator utility handles explicit waits, so Thread.sleep is unnecessary
-        locator.getLocator("_id_username").sendKeys(user);
+        // Retrieve from properties if key matches, otherwise use literal value
+        String username = BaseClass.prop.getProperty(user, user);
+        locator.getLocator("_id_username").sendKeys(username);
     }
 
     @When("je saisis password {string}")
     public void enter_password(String pass) {
-        locator.getLocator("_id_password").sendKeys(pass);
+        String password = BaseClass.prop.getProperty(pass, pass);
+        locator.getLocator("_id_password").sendKeys(password);
     }
 
-    @When("je clique sur login")
+    @When("je valide mon login")
     public void click_login() {
         locator.getLocator("_cssSelector_login_button").click();
     }

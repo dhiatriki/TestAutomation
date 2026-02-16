@@ -27,7 +27,6 @@ public class BaseClass {
         runApp();
         driverConfig();
         loadLocator(BaseClass.path_locators);
-        connectUrl(prop.getProperty("url"));
 
     }
 
