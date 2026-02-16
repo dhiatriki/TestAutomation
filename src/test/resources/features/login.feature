@@ -1,9 +1,9 @@
-Feature: Test de connexion
+Feature: Connexion avec email dynamique depuis Excel
 
-  Scenario: Connexion réussie
+  Scenario: Connexion réussie avec email unique
     Given je lance le navigateur
     When j'ouvre la page de login
-    And je saisis username "test.username"
-    And je saisis password "test.password"
+    And je récupère mes identifiants depuis Excel
+    And je saisis mes identifiants dynamiques
     And je valide mon login
-    Then je dois voir le message "You logged into a secure area!"
+    Then je dois voir le message "Welcome on board Sujet10!"
