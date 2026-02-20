@@ -6,7 +6,6 @@ import com.automation.utils.Locator;
 import io.cucumber.java.en.*;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.By;
 
 import java.time.Duration;
 
@@ -22,14 +21,15 @@ public class LoginSteps {
     private String mainWindow;
 
     private WebDriverWait wait = new WebDriverWait(BaseClass.driver, Duration.ofSeconds(10));
+
     // ---------------- NAVIGATION ----------------
-    @Given("I launch the browser")
+    @Given("the browser is launched")
     public void launch_browser() {
         mainWindow = BaseClass.driver.getWindowHandle();
         System.out.println("[INFO] Browser ready or already launched.");
     }
 
-    @When("I open the login page")
+    @When("the login page is opened")
     public void open_login_page() {
         String currentUrl = BaseClass.driver.getCurrentUrl();
         String loginUrl = BaseClass.prop.getProperty("url");
@@ -43,14 +43,14 @@ public class LoginSteps {
     }
 
     // ---------------- LANGUAGE ----------------
-    @When("I switch to French")
+    @When("the language is switched to French")
     public void switch_to_french() {
         locator.getLocator("_id_switchToFrench").click();
         wait.until(ExpectedConditions.textToBePresentInElement(locator.getLocator("_cssSelector_title"), "Bienvenue"));
         System.out.println("[INFO] Switched to French.");
     }
 
-    @When("I switch to English")
+    @When("the language is switched to English")
     public void switch_to_english() {
         locator.getLocator("_id_switchToEnglish").click();
         wait.until(ExpectedConditions.textToBePresentInElement(locator.getLocator("_cssSelector_title"), "Welcome"));
@@ -58,7 +58,7 @@ public class LoginSteps {
     }
 
     // ---------------- TITLE ----------------
-    @Then("I should see the title {string}")
+    @Then("the title should be {string}")
     public void verify_title(String expected) {
         String actual = locator.getLocator("_cssSelector_title").getText().trim();
         System.out.println("[INFO] Verifying title: " + actual);
@@ -66,7 +66,7 @@ public class LoginSteps {
     }
 
     // ---------------- SLOGAN ----------------
-    @Then("I should see the slogan {string}")
+    @Then("the slogan should be {string}")
     public void verify_slogan(String expectedSlogan) {
         String actual = locator.getLocator("_className_brand-slogan").getText().trim();
         System.out.println("[INFO] Verifying slogan: " + actual);
@@ -74,7 +74,7 @@ public class LoginSteps {
     }
 
     // ---------------- LOGIN TEXT ----------------
-    @Then("I should see the login text {string}")
+    @Then("the login text should be {string}")
     public void verify_login_text(String expected) {
         String actual = locator.getLocator("_cssSelector_login_text").getText().trim();
         System.out.println("[INFO] Verifying login text: " + actual);
@@ -82,34 +82,34 @@ public class LoginSteps {
     }
 
     // ---------------- LOGIN ----------------
-    @When("I get my credentials from Excel")
+    @When("credentials are retrieved from Excel")
     public void read_credentials() {
         email = excelUtils.getEmail();
         password = excelUtils.getPassword();
         System.out.println("[INFO] Credentials retrieved from Excel.");
     }
 
-    @When("I enter an email {string}")
+    @When("an email {string} is entered")
     public void enter_email(String type) {
         locator.getLocator("_id_username").clear();
         locator.getLocator("_id_username").sendKeys(type.equals("incorrect") ? email + "1" : email);
         System.out.println("[INFO] Entered email: " + (type.equals("incorrect") ? email + "1" : email));
     }
 
-    @When("I enter a password {string}")
+    @When("a password {string} is entered")
     public void enter_password(String type) {
         locator.getLocator("_id_password").clear();
         locator.getLocator("_id_password").sendKeys(type.equals("incorrect") ? password + "1" : password);
         System.out.println("[INFO] Entered password: " + (type.equals("incorrect") ? password + "1" : password));
     }
 
-    @When("I submit my login")
+    @When("the login form is submitted")
     public void click_login() {
         locator.getLocator("_cssSelector_login_button").click();
         System.out.println("[INFO] Clicked login button.");
     }
 
-    @Then("I should see the message")
+    @Then("the welcome message should be displayed")
     public void verify_success() {
         String text = locator.getLocator("_cssSelector_welcome_message").getText();
         System.out.println("[INFO] Login message: " + text);
@@ -117,7 +117,7 @@ public class LoginSteps {
         excelUtils.closeWorkbook();
     }
 
-    @When("I click the login button without entering credentials")
+    @When("the login button is clicked without entering credentials")
     public void click_login_empty() {
         locator.getLocator("_cssSelector_login_button").click();
         System.out.println("[INFO] Clicked login with empty fields.");
@@ -141,7 +141,7 @@ public class LoginSteps {
     }
 
     // ---------------- FOOTER ----------------
-    @Then("I test the footer link {string} and I should be redirected to {string}")
+    @Then("the footer link {string} should redirect to {string}")
     public void test_footer(String link, String page) {
         System.out.println("[INFO] Testing footer link: " + link);
 
@@ -174,13 +174,13 @@ public class LoginSteps {
     }
 
     // ---------------- UI ----------------
-    @Then("I should see the home block with image")
+    @Then("the home block with image should be visible")
     public void verify_image() {
         assertTrue(locator.getLocator("_cssSelector_background_image") != null);
         System.out.println("[INFO] Home block with image is visible.");
     }
 
-    @Then("I should see the brand logo")
+    @Then("the brand logo should be visible")
     public void verify_logo() {
         assertTrue(locator.getLocator("_cssSelector_brand_logo").isDisplayed());
         System.out.println("[INFO] Brand logo is visible.");

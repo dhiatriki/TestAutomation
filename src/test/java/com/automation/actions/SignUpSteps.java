@@ -3,12 +3,10 @@ package com.automation.actions;
 import com.automation.runner.BaseClass;
 import com.automation.utils.ExcelUtils;
 import com.automation.utils.Locator;
-import com.automation.TestEmail; // your utility to fetch the verification code
+import com.automation.TestEmail; // utility to fetch the verification code
 import io.cucumber.java.en.*;
 import org.openqa.selenium.WebElement;
 
-import static java.lang.Thread.currentThread;
-import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertTrue;
 
 public class SignUpSteps {
@@ -21,96 +19,85 @@ public class SignUpSteps {
 
     // ---------------- NAVIGATION ----------------
 
-    @When("j'ouvre la page d'inscription")
+    @When("open the sign up page")
     public void open_signup_page() {
         BaseClass.driver.get(BaseClass.prop.getProperty("signupUrl"));
+        System.out.println("[INFO] Sign up page opened.");
     }
 
     // ---------------- GET DATA FROM EXCEL ----------------
 
-    @When("je récupère les informations d'inscription depuis Excel")
+    @When("get the sign up information from Excel")
     public void read_signup_data() {
         email = excelUtils.getEmail();
         password = excelUtils.getPassword();
+        System.out.println("[INFO] Sign up data retrieved from Excel.");
     }
 
     // ---------------- FILL FORM ----------------
 
-    @When("je saisis l'email pour l'inscription")
+    @When("enter the email for sign up")
     public void enter_signup_email() {
         locator.getLocator("_cssSelector_signup_email").clear();
         locator.getLocator("_cssSelector_signup_email").sendKeys(email);
+        System.out.println("[INFO] Entered email: " + email);
     }
 
-    @When("je saisis le mot de passe pour l'inscription")
+    @When("enter the password for sign up")
     public void enter_signup_password() {
         locator.getLocator("_cssSelector_signup_password").clear();
         locator.getLocator("_cssSelector_signup_password").sendKeys(password);
+        System.out.println("[INFO] Entered password.");
     }
 
-    @When("je confirme le mot de passe")
+    @When("confirm the password")
     public void confirm_signup_password() {
         locator.getLocator("_cssSelector_signup_confirm_password").clear();
         locator.getLocator("_cssSelector_signup_confirm_password").sendKeys(password);
+        System.out.println("[INFO] Confirmed password.");
     }
 
-    @When("je valide l'inscription")
+    @When("submit the sign up form")
     public void submit_signup() throws InterruptedException {
         locator.getLocator("_cssSelector_signup_button").click();
-        Thread.sleep(2000);
+        Thread.sleep(2000); // small pause for page load
+        System.out.println("[INFO] Sign up form submitted.");
     }
 
+    // ---------------- EMAIL VERIFICATION ----------------
 
-    @When("je saisis le code de vérification reçu par email")
-    public void enter_verification_code() throws InterruptedException {
-        // Wait in case the input field takes time to appear
-        Thread.sleep(1000);
-
-        // Get the code from your TestEmail utility
-        String code = TestEmail.getVerificationCode(); // assuming it's a static method returning String
-
-        // Get the verification input field from locator.properties
-        WebElement codeField = locator.getLocator("_cssSelector_verification_field");
-        codeField.clear();
-        codeField.sendKeys(code);
-
-        WebElement signupButton = locator.getLocator("_cssSelector_signup_button");
-        signupButton.click();
-    }
-
-    @And("je valide le code")
-    public void submit_verification_code() {
-        // Press Enter or click next button if needed
-        // If you have a next button, you can do:
-        // WebElement nextButton = Locator.getLocator("_cssSelector_verification_next_button");
-        // nextButton.click();
-        // Otherwise, we can send Enter
-        locator.getLocator("_cssSelector_verification_field").submit();
-    }
-
-    // ---------------- VALIDATION ----------------
-    @Then("je dois voir la page de vérification de l'email")
+    @Then("see the email verification page")
     public void verify_email_verification_page() throws InterruptedException {
-        Thread.sleep(5000);
+        Thread.sleep(2000); // wait for verification page to load
         WebElement alert = locator.getLocator("_cssSelector_verification_alert");
         String alertText = alert.getText().trim();
         boolean isCorrect = alertText.equals("Code de vérification") || alertText.equals("Verification code");
-        assertTrue(
-                "Le texte d'alerte attendu est 'Code de vérification' ou 'Verification code', trouvé: " + alertText,
-                isCorrect
-        );
+        assertTrue("Expected alert text for verification code, found: " + alertText, isCorrect);
+        System.out.println("[INFO] Email verification page visible.");
     }
-    @Then("le compte doit être créé avec succès")
+
+    @When("enter the verification code received by email")
+    public void enter_verification_code() throws InterruptedException {
+        Thread.sleep(1000); // wait for input field
+        String code = TestEmail.getVerificationCode(); // fetch code
+        WebElement codeField = locator.getLocator("_cssSelector_verification_field");
+        codeField.clear();
+        codeField.sendKeys(code);
+        System.out.println("[INFO] Entered verification code: " + code);
+    }
+
+    @And("submit the code")
+    public void submit_verification_code() {
+        locator.getLocator("_cssSelector_verification_field").submit();
+        System.out.println("[INFO] Verification code submitted.");
+    }
+
+    // ---------------- SUCCESS ----------------
+
+    @Then("account should be created successfully")
     public void verify_signup_success() {
-
-        String text = locator.getLocator("_cssSelector_welcome_message")
-                .getText()
-                .toLowerCase();
-
+        String text = locator.getLocator("_cssSelector_welcome_message").getText().toLowerCase();
         assertTrue(text.contains("welcome") || text.contains("bienvenue"));
-
-        // ✅ prepare next unique email for next run
-        //excelUtils.incrementCount();
-        //excelUtils.closeWorkbook();
+        System.out.println("[INFO] Sign up successful, account created.");
     }
 }

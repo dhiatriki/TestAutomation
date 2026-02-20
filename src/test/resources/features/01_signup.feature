@@ -1,14 +1,14 @@
-Feature: Inscription avec vérification de l'email
+Feature: SignUp with email verification
 
-  Scenario: Inscription avec un nouvel utilisateur et code de vérification
-    Given je lance le navigateur
-    When j'ouvre la page d'inscription
-    And je récupère les informations d'inscription depuis Excel
-    And je saisis l'email pour l'inscription
-    And je saisis le mot de passe pour l'inscription
-    And je confirme le mot de passe
-    And je valide l'inscription
-    Then je dois voir la page de vérification de l'email
-    When je saisis le code de vérification reçu par email
-    And je valide le code
-    Then le compte doit être créé avec succès
+  Scenario: SignUp with a new user and verification code
+    Given the browser is launched
+    When open the sign up page
+    And get the sign up information from Excel
+    And enter the email for sign up
+    And enter the password for sign up
+    And confirm the password
+    And submit the sign up form
+    Then see the email verification page
+    When enter the verification code received by email
+    And submit the code
+    Then account should be created successfully
