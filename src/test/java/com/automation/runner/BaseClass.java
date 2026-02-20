@@ -104,6 +104,7 @@ public class BaseClass {
 
     private ChromeOptions getChromeOptions() {
         ChromeOptions options = new ChromeOptions();
+        options.addArguments("--lang=en");
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
         options.addArguments("--disable-infobars");

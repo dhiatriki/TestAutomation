@@ -4,6 +4,11 @@ import com.automation.runner.BaseClass;
 import com.automation.utils.ExcelUtils;
 import com.automation.utils.Locator;
 import io.cucumber.java.en.*;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.By;
+
+import java.time.Duration;
 
 import static org.junit.Assert.assertTrue;
 
@@ -16,129 +21,131 @@ public class LoginSteps {
     private String password;
     private String mainWindow;
 
+    private WebDriverWait wait = new WebDriverWait(BaseClass.driver, Duration.ofSeconds(10));
     // ---------------- NAVIGATION ----------------
-
-    @Given("je lance le navigateur")
-    public void lancer_nav() {
+    @Given("I launch the browser")
+    public void launch_browser() {
         mainWindow = BaseClass.driver.getWindowHandle();
-        System.out.println("Browser ready or already launched.");
+        System.out.println("[INFO] Browser ready or already launched.");
     }
 
-    @When("j'ouvre la page de login")
+    @When("I open the login page")
     public void open_login_page() {
-        BaseClass.driver.get(BaseClass.prop.getProperty("url"));
+        String currentUrl = BaseClass.driver.getCurrentUrl();
+        String loginUrl = BaseClass.prop.getProperty("url");
+
+        if (!currentUrl.equals(loginUrl)) {
+            BaseClass.driver.get(loginUrl);
+            System.out.println("[INFO] Login page opened.");
+        } else {
+            System.out.println("[INFO] Login page already opened, skipping reload.");
+        }
     }
 
-    // ---------------- LANGUE ----------------
-
-    @When("je bascule en français")
+    // ---------------- LANGUAGE ----------------
+    @When("I switch to French")
     public void switch_to_french() {
         locator.getLocator("_id_switchToFrench").click();
+        wait.until(ExpectedConditions.textToBePresentInElement(locator.getLocator("_cssSelector_title"), "Bienvenue"));
+        System.out.println("[INFO] Switched to French.");
     }
 
-    @When("je bascule en anglais")
+    @When("I switch to English")
     public void switch_to_english() {
         locator.getLocator("_id_switchToEnglish").click();
+        wait.until(ExpectedConditions.textToBePresentInElement(locator.getLocator("_cssSelector_title"), "Welcome"));
+        System.out.println("[INFO] Switched to English.");
     }
 
-    // ---------------- TITRE ----------------
-
-    @Then("je dois voir le titre {string}")
+    // ---------------- TITLE ----------------
+    @Then("I should see the title {string}")
     public void verify_title(String expected) {
-
-        String actual = locator.getLocator("_cssSelector_title")
-                .getText()
-                .trim();
-
-        assertTrue(
-                "Titre attendu : " + expected + " mais trouvé : " + actual,
-                actual.equals(expected)
-        );
+        String actual = locator.getLocator("_cssSelector_title").getText().trim();
+        System.out.println("[INFO] Verifying title: " + actual);
+        assertTrue("Expected title: " + expected + " but found: " + actual, actual.equals(expected));
     }
 
     // ---------------- SLOGAN ----------------
-
-    @Then("je dois voir le slogan {string}")
+    @Then("I should see the slogan {string}")
     public void verify_slogan(String expectedSlogan) {
         String actual = locator.getLocator("_className_brand-slogan").getText().trim();
+        System.out.println("[INFO] Verifying slogan: " + actual);
         assertTrue(actual.equals(expectedSlogan));
     }
 
-    // ---------------- TEXTE LOGIN ----------------
-    @Then("je dois voir le texte de connexion {string}")
+    // ---------------- LOGIN TEXT ----------------
+    @Then("I should see the login text {string}")
     public void verify_login_text(String expected) {
-
-        String actual = locator.getLocator("_cssSelector_login_text")
-                .getText()
-                .trim();
-
-        assertTrue(
-                "Texte attendu : " + expected + " mais trouvé : " + actual,
-                actual.equals(expected)
-        );
+        String actual = locator.getLocator("_cssSelector_login_text").getText().trim();
+        System.out.println("[INFO] Verifying login text: " + actual);
+        assertTrue("Expected text: " + expected + " but found: " + actual, actual.equals(expected));
     }
 
     // ---------------- LOGIN ----------------
-
-    @When("je récupère mes identifiants depuis Excel")
+    @When("I get my credentials from Excel")
     public void read_credentials() {
         email = excelUtils.getEmail();
         password = excelUtils.getPassword();
+        System.out.println("[INFO] Credentials retrieved from Excel.");
     }
 
-    @When("je saisis un email {string}")
+    @When("I enter an email {string}")
     public void enter_email(String type) {
         locator.getLocator("_id_username").clear();
-        locator.getLocator("_id_username")
-                .sendKeys(type.equals("incorrect") ? email + "1" : email);
+        locator.getLocator("_id_username").sendKeys(type.equals("incorrect") ? email + "1" : email);
+        System.out.println("[INFO] Entered email: " + (type.equals("incorrect") ? email + "1" : email));
     }
 
-    @When("je saisis un password {string}")
+    @When("I enter a password {string}")
     public void enter_password(String type) {
         locator.getLocator("_id_password").clear();
-        locator.getLocator("_id_password")
-                .sendKeys(type.equals("incorrect") ? password + "1" : password);
+        locator.getLocator("_id_password").sendKeys(type.equals("incorrect") ? password + "1" : password);
+        System.out.println("[INFO] Entered password: " + (type.equals("incorrect") ? password + "1" : password));
     }
 
-    @When("je valide mon login")
+    @When("I submit my login")
     public void click_login() {
         locator.getLocator("_cssSelector_login_button").click();
+        System.out.println("[INFO] Clicked login button.");
     }
 
-    @Then("je dois voir le message")
+    @Then("I should see the message")
     public void verify_success() {
         String text = locator.getLocator("_cssSelector_welcome_message").getText();
+        System.out.println("[INFO] Login message: " + text);
         assertTrue(text.contains("Welcome") || text.contains("Bienvenue"));
         excelUtils.closeWorkbook();
     }
 
-    @When("je clique sur le bouton login sans saisir les identifiants")
+    @When("I click the login button without entering credentials")
     public void click_login_empty() {
         locator.getLocator("_cssSelector_login_button").click();
+        System.out.println("[INFO] Clicked login with empty fields.");
     }
 
-    @Then("les messages d'erreur des champs obligatoires doivent être affichés")
+    @Then("the required field error messages should be displayed")
     public void verify_required_errors() {
-
         String userErr = locator.getLocator("_id_Username-error").getText();
         String passErr = locator.getLocator("_id_Password-error").getText();
-
+        System.out.println("[INFO] User error: " + userErr);
+        System.out.println("[INFO] Password error: " + passErr);
         assertTrue(userErr.length() > 0);
         assertTrue(passErr.length() > 0);
     }
 
-    @Then("le message email ou mot de passe incorrect doit être affiché")
+    @Then("the incorrect email or password message should be displayed")
     public void verify_invalid_login() {
         String msg = locator.getLocator("_xpath_error_message").getText();
+        System.out.println("[INFO] Invalid login message: " + msg);
         assertTrue(msg.length() > 0);
     }
 
     // ---------------- FOOTER ----------------
+    @Then("I test the footer link {string} and I should be redirected to {string}")
+    public void test_footer(String link, String page) {
+        System.out.println("[INFO] Testing footer link: " + link);
 
-    @Then("je teste le lien footer {string} et je dois être redirigé vers {string}")
-    public void test_footer(String lien, String page) {
-
-        switch (lien) {
+        switch (link) {
             case "Terms of Use":
                 locator.getLocator("_cssSelector_terms_of_use").click();
                 break;
@@ -147,12 +154,14 @@ public class LoginSteps {
                 break;
         }
 
+        // Switch to new tab
         for (String w : BaseClass.driver.getWindowHandles()) {
             if (!w.equals(mainWindow))
                 BaseClass.driver.switchTo().window(w);
         }
 
         String url = BaseClass.driver.getCurrentUrl().toLowerCase();
+        System.out.println("[INFO] Footer redirected URL: " + url);
 
         if (page.equals("Terms"))
             assertTrue(url.contains("terms") || url.contains("legal"));
@@ -165,16 +174,16 @@ public class LoginSteps {
     }
 
     // ---------------- UI ----------------
-
-    @Then("je dois voir le bloc d'accueil avec image")
+    @Then("I should see the home block with image")
     public void verify_image() {
         assertTrue(locator.getLocator("_cssSelector_background_image") != null);
+        System.out.println("[INFO] Home block with image is visible.");
     }
 
-    @Then("je dois voir le logo de la marque")
+    @Then("I should see the brand logo")
     public void verify_logo() {
         assertTrue(locator.getLocator("_cssSelector_brand_logo").isDisplayed());
+        System.out.println("[INFO] Brand logo is visible.");
     }
-
 
 }
