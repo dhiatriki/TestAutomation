@@ -8,7 +8,8 @@ Feature: SignUp with email verification
     And enter the password for sign up
     And confirm the password
     And submit the sign up form
-    Then see the email verification page
-    When enter the verification code received by email
+    Then enter the verification code received by email
     And submit the code
+    When enter the signup personal information
+    And submit the personal information
     Then account should be created successfully

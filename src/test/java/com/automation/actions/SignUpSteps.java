@@ -1,5 +1,7 @@
 package com.automation.actions;
 
+import java.io.FileInputStream;
+import java.util.Properties;
 import com.automation.runner.BaseClass;
 import com.automation.utils.ExcelUtils;
 import com.automation.utils.Locator;
@@ -13,10 +15,23 @@ public class SignUpSteps {
 
     private Locator locator = new Locator();
     private ExcelUtils excelUtils = new ExcelUtils("src/test/resources/LoginData.xlsx");
+    private Properties dataProp = new Properties();
 
     private String email;
     private String password;
+    private String firstname;
+    private String phone;
 
+    public SignUpSteps() {
+        try {
+            FileInputStream fis = new FileInputStream("src/test/resources/data.properties");
+            dataProp.load(fis);
+            firstname = dataProp.getProperty("signup.firstname");
+            phone = dataProp.getProperty("signup.phone");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     // ---------------- NAVIGATION ----------------
 
     @When("open the sign up page")
@@ -92,6 +107,36 @@ public class SignUpSteps {
         System.out.println("[INFO] Verification code submitted.");
     }
 
+    // ---------------- PHONE VERIFICATION ----------------
+
+    @When("enter the signup personal information")
+    public void enter_signup_personal_info() {
+        // Firstname
+        WebElement firstNameField = locator.getLocator("_cssSelector_signup_firstname");
+        firstNameField.clear();
+        firstNameField.sendKeys(firstname);
+        System.out.println("[INFO] Entered firstname: " + firstname);
+
+        // Lastname (from Excel)
+        WebElement lastNameField = locator.getLocator("_cssSelector_signup_lastname");
+        //String lastname = excelUtils.getLastname();  // assuming you add getLastname() in ExcelUtils
+        lastNameField.clear();
+        //lastNameField.sendKeys(lastname);
+        //System.out.println("[INFO] Entered lastname: " + lastname);
+
+        // Phone (from data.properties)
+        WebElement phoneField = locator.getLocator("_cssSelector_signup_phone");
+        phoneField.clear();
+        phoneField.sendKeys(phone);
+        System.out.println("[INFO] Entered phone: " + phone);
+    }
+
+    @And("submit the personal information")
+    public void submit_signup_personal_info() {
+        // Assuming there’s a submit button; reuse signup button if same
+        locator.getLocator("_cssSelector_signup_button").click();
+        System.out.println("[INFO] Submitted personal information.");
+    }
     // ---------------- SUCCESS ----------------
 
     @Then("account should be created successfully")
@@ -100,4 +145,6 @@ public class SignUpSteps {
         assertTrue(text.contains("welcome") || text.contains("bienvenue"));
         System.out.println("[INFO] Sign up successful, account created.");
     }
+
+
 }
