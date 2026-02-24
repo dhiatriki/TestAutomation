@@ -42,9 +42,10 @@ public class SignUpSteps {
     // ---------------- NAVIGATION ----------------
 
     @When("open the sign up page")
-    public void open_signup_page() {
+    public void open_signup_page() throws InterruptedException {
         BaseClass.driver.get(BaseClass.prop.getProperty("signupUrl"));
         System.out.println("[INFO] Sign up page opened.");
+        Thread.sleep(500);
     }
 
     // ---------------- GET DATA FROM EXCEL ----------------
@@ -59,30 +60,36 @@ public class SignUpSteps {
     // ---------------- FILL FORM ----------------
 
     @When("enter the email for sign up")
-    public void enter_signup_email() {
-        locator.getLocator("_cssSelector_signup_email").clear();
-        locator.getLocator("_cssSelector_signup_email").sendKeys(email);
+    public void enter_signup_email() throws InterruptedException {
+        locator.getLocator("_xpath_signup_email").clear();
+        locator.getLocator("_xpath_signup_email").sendKeys(email);
         System.out.println("[INFO] Entered email: " + email);
+        Thread.sleep(500);
     }
 
     @When("enter the password for sign up")
-    public void enter_signup_password() {
-        locator.getLocator("_cssSelector_signup_password").clear();
-        locator.getLocator("_cssSelector_signup_password").sendKeys(password);
+    public void enter_signup_password() throws InterruptedException {
+        locator.getLocator("_xpath_signup_password").clear();
+        locator.getLocator("_xpath_signup_password").sendKeys(password);
         System.out.println("[INFO] Entered password.");
+        Thread.sleep(500);
+
     }
 
     @When("confirm the password")
-    public void confirm_signup_password() {
-        locator.getLocator("_cssSelector_signup_confirm_password").clear();
-        locator.getLocator("_cssSelector_signup_confirm_password").sendKeys(password);
+    public void confirm_signup_password() throws InterruptedException {
+        locator.getLocator("_xpath_signup_confirm_password").clear();
+        locator.getLocator("_xpath_signup_confirm_password").sendKeys(password);
         System.out.println("[INFO] Confirmed password.");
+        Thread.sleep(500);
+
     }
 
     @When("submit the sign up form")
     public void submit_signup() throws InterruptedException {
-        locator.getLocator("_cssSelector_signup_button").click();
+        locator.getLocator("_xpath_signup_button").click();
         System.out.println("[INFO] Sign up form submitted.");
+
     }
 
     // ---------------- EMAIL VERIFICATION ----------------
@@ -90,7 +97,7 @@ public class SignUpSteps {
     @Then("see the email verification page")
     public void verify_email_verification_page() throws InterruptedException {
         sleep(10000); // wait for verification page to load
-        WebElement alert = locator.getLocator("_cssSelector_verification_alert");
+        WebElement alert = locator.getLocator("_xpath_verification_alert");
         String alertText = alert.getText().trim();
         boolean isCorrect = alertText.equals("Code de vérification") || alertText.equals("Verification code");
         assertTrue("Expected alert text for verification code, found: " + alertText, isCorrect);
@@ -101,7 +108,7 @@ public class SignUpSteps {
     public void enter_verification_code() throws InterruptedException {
         sleep(5000); // wait for input field
         String code = TestEmail.getVerificationCode(); // fetch code
-        WebElement codeField = locator.getLocator("_cssSelector_verification_field");
+        WebElement codeField = locator.getLocator("_xpath_verification_field");
         codeField.clear();
         codeField.sendKeys(code);
         System.out.println("[INFO] Entered verification code: " + code);
@@ -110,7 +117,7 @@ public class SignUpSteps {
     @And("submit the code")
     public void submit_verification_code() throws InterruptedException {
         sleep(2000);
-        locator.getLocator("_cssSelector_signup_button").click();
+        locator.getLocator("_xpath_signup_button").click();
         System.out.println("[INFO] Verification code submitted.");
     }
 
@@ -119,20 +126,20 @@ public class SignUpSteps {
     @When("enter the signup personal information")
     public void enter_signup_personal_info() {
         // Firstname
-        WebElement firstNameField = locator.getLocator("_cssSelector_signup_firstname");
+        WebElement firstNameField = locator.getLocator("_xpath_signup_firstname");
         firstNameField.clear();
         firstNameField.sendKeys(firstname);
         System.out.println("[INFO] Entered firstname: " + firstname);
 
         // Lastname (from Excel)
-        WebElement lastNameField = locator.getLocator("_cssSelector_signup_lastname");
+        WebElement lastNameField = locator.getLocator("_xpath_signup_lastname");
         String lastname = excelUtils.getLastname();  // assuming you add getLastname() in ExcelUtils
         lastNameField.clear();
         lastNameField.sendKeys(lastname);
         System.out.println("[INFO] Entered lastname: " + lastname);
 
         // Phone (from data.properties)
-        WebElement phoneField = locator.getLocator("_cssSelector_signup_phone");
+        WebElement phoneField = locator.getLocator("_xpath_signup_phone");
         phoneField.clear();
         phoneField.sendKeys(phone);
         System.out.println("[INFO] Entered phone: " + phone);
@@ -142,7 +149,7 @@ public class SignUpSteps {
     public void submit_signup_personal_info() throws InterruptedException {
         // Assuming there’s a submit button; reuse signup button if same
         sleep(2000);
-        locator.getLocator("_cssSelector_signup_button").click();
+        locator.getLocator("_xpath_signup_button").click();
         System.out.println("[INFO] Submitted personal information.");
     }
 
@@ -150,12 +157,12 @@ public class SignUpSteps {
     public void enterPhoneVerificationCodeAndSubmit() {
 
         // Enter the code into the input field
-        WebElement codeField = locator.getLocator("_cssSelector_signup_phone_code");
+        WebElement codeField = locator.getLocator("_xpath_signup_phone_code");
         codeField.clear();
         codeField.sendKeys(code);
 
         // Click the submit button
-        WebElement submitButton = locator.getLocator("_cssSelector_signup_button");
+        WebElement submitButton = locator.getLocator("_xpath_signup_button");
         submitButton.click();
     }
     // ---------------- SUCCESS ----------------
@@ -163,7 +170,7 @@ public class SignUpSteps {
     @Then("verify the welcome message after phone verification")
     public void verifyWelcomeMessage() throws InterruptedException {
         sleep(10000);
-        WebElement welcomeElement = locator.getLocator("_cssSelector_signup_welcome");
+        WebElement welcomeElement = locator.getLocator("_xpath_signup_welcome");
         String welcomeText = welcomeElement.getText().trim();
 
         // Assert that the text matches either English or French
@@ -183,10 +190,13 @@ public class SignUpSteps {
         // Sauvegarder le handle de la fenêtre principale
         String mainWindow = BaseClass.driver.getWindowHandle();
 
+        // Sleep avant de cliquer pour plus de visibilité
+        Thread.sleep(1000);
+
         // Cliquer sur le lien du footer
         switch (link) {
             case "Terms of Use":
-                locator.getLocator("_cssSelector_terms_of_use").click();
+                locator.getLocator("xpath_terms_of_use").click();
                 break;
             case "Privacy Policy":
                 locator.getLocator("_xpath_privacy").click();
@@ -194,6 +204,9 @@ public class SignUpSteps {
             default:
                 throw new RuntimeException("Footer link non géré: " + link);
         }
+
+        // Sleep après le clic pour attendre le rendu de la nouvelle fenêtre
+        Thread.sleep(1000);
 
         // Attendre l'ouverture de la nouvelle fenêtre
         WebDriverWait wait = new WebDriverWait(BaseClass.driver, Duration.ofSeconds(5));
@@ -206,6 +219,9 @@ public class SignUpSteps {
                 break;
             }
         }
+
+        // Sleep pour s'assurer que la page est complètement chargée
+        Thread.sleep(1000);
 
         // Vérifier l'URL de redirection
         String url = BaseClass.driver.getCurrentUrl().toLowerCase();
@@ -222,19 +238,21 @@ public class SignUpSteps {
         // Fermer la nouvelle fenêtre et revenir à la principale
         BaseClass.driver.close();
         BaseClass.driver.switchTo().window(mainWindow);
-    }
 
+        // Sleep final pour stabiliser avant la prochaine action
+        Thread.sleep(1000);
+    }
 
     // ---------------- UI ----------------
     @Then("the home sign up block with image should be visible")
     public void verify_image() {
-        assertTrue(locator.getLocator("_cssSelector_signup_background_image") != null);
+        assertTrue(locator.getLocator("xpath_signup_background_image") != null);
         System.out.println("[INFO] Home block with image is visible.");
     }
 
     @Then("the brand logo sign up should be visible")
     public void verify_logo() {
-        assertTrue(locator.getLocator("_cssSelector_brand_logo_Sign_up").isDisplayed());
+        assertTrue(locator.getLocator("xpath_brand_logo_Sign_up").isDisplayed());
         System.out.println("[INFO] Brand logo is visible.");
     }
 
@@ -244,19 +262,19 @@ public class SignUpSteps {
     public void switch_to_french() {
         locator.getLocator("_xpath_switchToFrench").click();
         wait.until(ExpectedConditions.textToBePresentInElement(
-                locator.getLocator("_cssSelector_signup_title"),
+                locator.getLocator("_className_signup_title"),
                 "Commençons"));
     }
 
     @Then("the signup title should be {string}")
     public void verify_title(String expected) {
-        String actual = locator.getLocator("_cssSelector_signup_title").getText().trim();
+        String actual = locator.getLocator("_className_signup_title").getText().trim();
         System.out.println("[INFO] Verifying title: " + actual);
         assertTrue("Expected title: " + expected + " but found: " + actual, actual.equals(expected));
     }
     @Then("the signup slogan should be {string}")
     public void verify_slogan(String expectedSlogan) {
-        String actual = locator.getLocator("_cssSelector_signup_slogan").getText().trim();
+        String actual = locator.getLocator("_className_signup_slogan").getText().trim();
         System.out.println("[INFO] Verifying slogan: " + actual);
 
         assertTrue(
@@ -278,7 +296,7 @@ public class SignUpSteps {
         locator.getLocator("_xpath_switchToEnglish").click();
 
         wait.until(ExpectedConditions.textToBePresentInElement(
-                locator.getLocator("_cssSelector_signup_title"),
+                locator.getLocator("_className_signup_title"),
                 "Let’s"
         ));
 

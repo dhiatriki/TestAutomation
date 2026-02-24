@@ -22,7 +22,6 @@ Feature: Login with language management and footer verification
     And the slogan should be "Driven by your success."
     And the login text should be "Log in with your credentials."
 
-  # --- Login validations ---
   Scenario: Display error messages when fields are empty
     When the login button is clicked without entering credentials
     Then the required field error messages should be displayed

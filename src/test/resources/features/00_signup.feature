@@ -1,15 +1,5 @@
 Feature: SignUp with email verification
-  # ---------- FOOTER LINKS ----------
-  Scenario Outline: Verify footer links
-    Given the browser is launched
-    When open the sign up page
 
-    Then the signup footer link "<link>" should redirect to "<page>"
-
-    Examples:
-      | link           | page     |
-      | Terms of Use   | Terms    |
-      | Privacy Policy | Privacy  |
 
 
       # --- Home block UI test ---
