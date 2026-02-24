@@ -1,6 +1,7 @@
 package com.automation.actions;
 
 import java.io.FileInputStream;
+import java.time.Duration;
 import java.util.Properties;
 import com.automation.runner.BaseClass;
 import com.automation.utils.ExcelUtils;
@@ -8,6 +9,8 @@ import com.automation.utils.Locator;
 import com.automation.utils.TestEmail; // utility to fetch the verification code
 import io.cucumber.java.en.*;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 public class SignUpSteps {
 
     private Locator locator = new Locator();
-    private ExcelUtils excelUtils = new ExcelUtils("src/test/resources/LoginData.xlsx");
+    private ExcelUtils excelUtils = new ExcelUtils("src/test/resources/InputData.xlsx");
     private Properties dataProp = new Properties();
 
     private String email;
@@ -23,6 +26,8 @@ public class SignUpSteps {
     private String firstname;
     private String phone;
     private String code;
+
+    private WebDriverWait wait = new WebDriverWait(BaseClass.driver, Duration.ofSeconds(10));
     public SignUpSteps() {
         try {
             FileInputStream fis = new FileInputStream("src/test/resources/data.properties");
@@ -170,4 +175,113 @@ public class SignUpSteps {
     }
 
 
+    // ---------------- FOOTER LINKS ----------------
+    @Then("the signup footer link {string} should redirect to {string}")
+    public void test_footer(String link, String page) throws InterruptedException {
+        System.out.println("[INFO] Testing footer link: " + link);
+
+        // Sauvegarder le handle de la fenêtre principale
+        String mainWindow = BaseClass.driver.getWindowHandle();
+
+        // Cliquer sur le lien du footer
+        switch (link) {
+            case "Terms of Use":
+                locator.getLocator("_cssSelector_terms_of_use").click();
+                break;
+            case "Privacy Policy":
+                locator.getLocator("_xpath_privacy").click();
+                break;
+            default:
+                throw new RuntimeException("Footer link non géré: " + link);
+        }
+
+        // Attendre l'ouverture de la nouvelle fenêtre
+        WebDriverWait wait = new WebDriverWait(BaseClass.driver, Duration.ofSeconds(5));
+        wait.until(driver -> driver.getWindowHandles().size() > 1);
+
+        // Passer à la nouvelle fenêtre
+        for (String w : BaseClass.driver.getWindowHandles()) {
+            if (!w.equals(mainWindow)) {
+                BaseClass.driver.switchTo().window(w);
+                break;
+            }
+        }
+
+        // Vérifier l'URL de redirection
+        String url = BaseClass.driver.getCurrentUrl().toLowerCase();
+        System.out.println("[INFO] Footer redirected URL: " + url);
+
+        if (page.equals("Terms")) {
+            assertTrue(url.contains("terms") || url.contains("legal"));
+        } else if (page.equals("Privacy")) {
+            assertTrue(url.contains("privacy"));
+        } else {
+            throw new RuntimeException("Page non gérée pour assertion: " + page);
+        }
+
+        // Fermer la nouvelle fenêtre et revenir à la principale
+        BaseClass.driver.close();
+        BaseClass.driver.switchTo().window(mainWindow);
+    }
+
+
+    // ---------------- UI ----------------
+    @Then("the home sign up block with image should be visible")
+    public void verify_image() {
+        assertTrue(locator.getLocator("_cssSelector_signup_background_image") != null);
+        System.out.println("[INFO] Home block with image is visible.");
+    }
+
+    @Then("the brand logo sign up should be visible")
+    public void verify_logo() {
+        assertTrue(locator.getLocator("_cssSelector_brand_logo_Sign_up").isDisplayed());
+        System.out.println("[INFO] Brand logo is visible.");
+    }
+
+
+
+    @When("the signup language is switched to French")
+    public void switch_to_french() {
+        locator.getLocator("_xpath_switchToFrench").click();
+        wait.until(ExpectedConditions.textToBePresentInElement(
+                locator.getLocator("_cssSelector_signup_title"),
+                "Commençons"));
+    }
+
+    @Then("the signup title should be {string}")
+    public void verify_title(String expected) {
+        String actual = locator.getLocator("_cssSelector_signup_title").getText().trim();
+        System.out.println("[INFO] Verifying title: " + actual);
+        assertTrue("Expected title: " + expected + " but found: " + actual, actual.equals(expected));
+    }
+    @Then("the signup slogan should be {string}")
+    public void verify_slogan(String expectedSlogan) {
+        String actual = locator.getLocator("_cssSelector_signup_slogan").getText().trim();
+        System.out.println("[INFO] Verifying slogan: " + actual);
+
+        assertTrue(
+                "Expected slogan: " + expectedSlogan + " but found: " + actual,
+                actual.equalsIgnoreCase(expectedSlogan)
+        );
+    }
+
+    @Then("the signup  text should be {string}")
+    public void verify_login_text(String expected) {
+        String actual = locator.getLocator("_xpath_signup_login_text").getText().trim();
+        System.out.println("[INFO] Verifying login text: " + actual);
+        assertTrue("Expected text: " + expected + " but found: " + actual,
+                actual.contains(expected));
+    }
+
+    @When("the signup language is switched to English")
+    public void switch_signup_to_english() {
+        locator.getLocator("_xpath_switchToEnglish").click();
+
+        wait.until(ExpectedConditions.textToBePresentInElement(
+                locator.getLocator("_cssSelector_signup_title"),
+                "Let’s"
+        ));
+
+        System.out.println("[INFO] Signup switched to English.");
+    }
 }
