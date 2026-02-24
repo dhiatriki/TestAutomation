@@ -9,6 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.time.Duration;
 
+import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertTrue;
 
 public class LoginSteps {
@@ -110,10 +111,12 @@ public class LoginSteps {
     }
 
     @Then("the welcome message should be displayed")
-    public void verify_success() {
+    public void verify_success() throws InterruptedException {
+        sleep(10000);
         String text = locator.getLocator("_cssSelector_welcome_message").getText();
         System.out.println("[INFO] Login message: " + text);
-        assertTrue(text.contains("Welcome") || text.contains("Bienvenue"));
+        assertTrue(text.contains("Welcome") || text.contains("Bienvenue"));        // Increment the count in Excel after successful verification
+        excelUtils.incrementCount();
         excelUtils.closeWorkbook();
     }
 

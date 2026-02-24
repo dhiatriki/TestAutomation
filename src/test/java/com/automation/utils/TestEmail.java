@@ -1,6 +1,4 @@
-package com.automation;
-
-import com.automation.utils.EmailUtils;
+package com.automation.utils;
 
 public class TestEmail {
 

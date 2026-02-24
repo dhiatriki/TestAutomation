@@ -5,10 +5,11 @@ import java.util.Properties;
 import com.automation.runner.BaseClass;
 import com.automation.utils.ExcelUtils;
 import com.automation.utils.Locator;
-import com.automation.TestEmail; // utility to fetch the verification code
+import com.automation.utils.TestEmail; // utility to fetch the verification code
 import io.cucumber.java.en.*;
 import org.openqa.selenium.WebElement;
 
+import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertTrue;
 
 public class SignUpSteps {
@@ -21,13 +22,14 @@ public class SignUpSteps {
     private String password;
     private String firstname;
     private String phone;
-
+    private String code;
     public SignUpSteps() {
         try {
             FileInputStream fis = new FileInputStream("src/test/resources/data.properties");
             dataProp.load(fis);
             firstname = dataProp.getProperty("signup.firstname");
             phone = dataProp.getProperty("signup.phone");
+            code = dataProp.getProperty("signup.code");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,7 +77,6 @@ public class SignUpSteps {
     @When("submit the sign up form")
     public void submit_signup() throws InterruptedException {
         locator.getLocator("_cssSelector_signup_button").click();
-        Thread.sleep(2000); // small pause for page load
         System.out.println("[INFO] Sign up form submitted.");
     }
 
@@ -83,7 +84,7 @@ public class SignUpSteps {
 
     @Then("see the email verification page")
     public void verify_email_verification_page() throws InterruptedException {
-        Thread.sleep(2000); // wait for verification page to load
+        sleep(10000); // wait for verification page to load
         WebElement alert = locator.getLocator("_cssSelector_verification_alert");
         String alertText = alert.getText().trim();
         boolean isCorrect = alertText.equals("Code de vérification") || alertText.equals("Verification code");
@@ -93,7 +94,7 @@ public class SignUpSteps {
 
     @When("enter the verification code received by email")
     public void enter_verification_code() throws InterruptedException {
-        Thread.sleep(1000); // wait for input field
+        sleep(5000); // wait for input field
         String code = TestEmail.getVerificationCode(); // fetch code
         WebElement codeField = locator.getLocator("_cssSelector_verification_field");
         codeField.clear();
@@ -102,8 +103,9 @@ public class SignUpSteps {
     }
 
     @And("submit the code")
-    public void submit_verification_code() {
-        locator.getLocator("_cssSelector_verification_field").submit();
+    public void submit_verification_code() throws InterruptedException {
+        sleep(2000);
+        locator.getLocator("_cssSelector_signup_button").click();
         System.out.println("[INFO] Verification code submitted.");
     }
 
@@ -119,10 +121,10 @@ public class SignUpSteps {
 
         // Lastname (from Excel)
         WebElement lastNameField = locator.getLocator("_cssSelector_signup_lastname");
-        //String lastname = excelUtils.getLastname();  // assuming you add getLastname() in ExcelUtils
+        String lastname = excelUtils.getLastname();  // assuming you add getLastname() in ExcelUtils
         lastNameField.clear();
-        //lastNameField.sendKeys(lastname);
-        //System.out.println("[INFO] Entered lastname: " + lastname);
+        lastNameField.sendKeys(lastname);
+        System.out.println("[INFO] Entered lastname: " + lastname);
 
         // Phone (from data.properties)
         WebElement phoneField = locator.getLocator("_cssSelector_signup_phone");
@@ -132,18 +134,39 @@ public class SignUpSteps {
     }
 
     @And("submit the personal information")
-    public void submit_signup_personal_info() {
+    public void submit_signup_personal_info() throws InterruptedException {
         // Assuming there’s a submit button; reuse signup button if same
+        sleep(2000);
         locator.getLocator("_cssSelector_signup_button").click();
         System.out.println("[INFO] Submitted personal information.");
     }
+
+    @Then("enter the phone verification code and submit")
+    public void enterPhoneVerificationCodeAndSubmit() {
+
+        // Enter the code into the input field
+        WebElement codeField = locator.getLocator("_cssSelector_signup_phone_code");
+        codeField.clear();
+        codeField.sendKeys(code);
+
+        // Click the submit button
+        WebElement submitButton = locator.getLocator("_cssSelector_signup_button");
+        submitButton.click();
+    }
     // ---------------- SUCCESS ----------------
 
-    @Then("account should be created successfully")
-    public void verify_signup_success() {
-        String text = locator.getLocator("_cssSelector_welcome_message").getText().toLowerCase();
-        assertTrue(text.contains("welcome") || text.contains("bienvenue"));
-        System.out.println("[INFO] Sign up successful, account created.");
+    @Then("verify the welcome message after phone verification")
+    public void verifyWelcomeMessage() throws InterruptedException {
+        sleep(10000);
+        WebElement welcomeElement = locator.getLocator("_cssSelector_signup_welcome");
+        String welcomeText = welcomeElement.getText().trim();
+
+        // Assert that the text matches either English or French
+        boolean isCorrect = welcomeText.equals("Welcome test to CG Direct!") ||
+                welcomeText.equals("Bienvenue test à CG Direct!");
+
+        assertTrue("Welcome message is incorrect! Found: " + welcomeText, isCorrect);
+
     }
 
 

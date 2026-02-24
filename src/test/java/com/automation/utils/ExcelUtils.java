@@ -88,7 +88,22 @@ public class ExcelUtils {
                 return "";
         }
     }
+    /**
+     * Returns the lastname (count value) from Excel
+     */
+    public String getLastname() {
+        try {
+            Row row = sheet.getRow(1);
+            if (row == null) throw new RuntimeException("Row 2 not found in Excel");
 
+            int count = getCellValueAsInt(row.getCell(2));
+            return String.valueOf(count);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     /**
      * Save the workbook back to the file
      */
@@ -99,7 +114,22 @@ public class ExcelUtils {
             e.printStackTrace();
         }
     }
+    public void incrementCount() {
+        try {
+            Row row = sheet.getRow(1);
+            if (row == null) row = sheet.createRow(1);
 
+            Cell countCell = row.getCell(2);
+            if (countCell == null) countCell = row.createCell(2);
+
+            int currentCount = getCellValueAsInt(countCell);
+            countCell.setCellValue(currentCount + 1);
+
+            saveWorkbook(); // save changes back to the file
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * Close the workbook
      */
