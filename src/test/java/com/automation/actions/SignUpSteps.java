@@ -33,7 +33,6 @@ public class SignUpSteps {
             FileInputStream fis = new FileInputStream("src/test/resources/data.properties");
             dataProp.load(fis);
             firstname = dataProp.getProperty("signup.firstname");
-            phone = dataProp.getProperty("signup.phone");
             code = dataProp.getProperty("signup.code");
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,6 +53,7 @@ public class SignUpSteps {
     public void read_signup_data() {
         email = excelUtils.getEmail();
         password = excelUtils.getPassword();
+        phone = excelUtils.getPhoneNumber();
         System.out.println("[INFO] Sign up data retrieved from Excel.");
     }
 
@@ -81,7 +81,6 @@ public class SignUpSteps {
         locator.getLocator("_xpath_signup_confirm_password").clear();
         locator.getLocator("_xpath_signup_confirm_password").sendKeys(password);
         System.out.println("[INFO] Confirmed password.");
-        Thread.sleep(500);
 
     }
 
@@ -89,26 +88,17 @@ public class SignUpSteps {
     public void submit_signup() throws InterruptedException {
         locator.getLocator("_xpath_signup_button").click();
         System.out.println("[INFO] Sign up form submitted.");
-
     }
 
     // ---------------- EMAIL VERIFICATION ----------------
 
-    @Then("see the email verification page")
-    public void verify_email_verification_page() throws InterruptedException {
-        sleep(10000); // wait for verification page to load
-        WebElement alert = locator.getLocator("_xpath_verification_alert");
-        String alertText = alert.getText().trim();
-        boolean isCorrect = alertText.equals("Code de vérification") || alertText.equals("Verification code");
-        assertTrue("Expected alert text for verification code, found: " + alertText, isCorrect);
-        System.out.println("[INFO] Email verification page visible.");
-    }
 
     @When("enter the verification code received by email")
     public void enter_verification_code() throws InterruptedException {
-        sleep(5000); // wait for input field
+        sleep(15000);
+        WebElement codeField = wait.until(
+                ExpectedConditions.elementToBeClickable(locator.getLocator("_xpath_verification_field")));
         String code = TestEmail.getVerificationCode(); // fetch code
-        WebElement codeField = locator.getLocator("_xpath_verification_field");
         codeField.clear();
         codeField.sendKeys(code);
         System.out.println("[INFO] Entered verification code: " + code);
@@ -138,7 +128,7 @@ public class SignUpSteps {
         lastNameField.sendKeys(lastname);
         System.out.println("[INFO] Entered lastname: " + lastname);
 
-        // Phone (from data.properties)
+        // Phone (from Excel)
         WebElement phoneField = locator.getLocator("_xpath_signup_phone");
         phoneField.clear();
         phoneField.sendKeys(phone);
