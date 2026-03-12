@@ -1,4 +1,3 @@
-
 package com.automation.runner;
 
 import org.junit.runner.RunWith;
@@ -11,7 +10,11 @@ import org.junit.BeforeClass;
 import java.io.IOException;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = {"src/test/resources/features"},
+@CucumberOptions(features = {
+        "src/test/resources/features/00_signup.feature",
+        "src/test/resources/features/01_login.feature",
+        "src/test/resources/features/02_agree_feature.feature"
+},
 
         plugin = {"pretty", "html:target/cucumber-reports.html", "json:target/cucumber.json",
                 "junit:target/junit-cucumber-reports/Cucumber-junit.xml",

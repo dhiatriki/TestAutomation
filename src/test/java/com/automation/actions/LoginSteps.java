@@ -120,8 +120,11 @@ public class LoginSteps {
         String text = locator.getLocator("_xpath_welcome_message").getText();
         System.out.println("[INFO] Login message: " + text);
         assertTrue(text.contains("Welcome") || text.contains("Bienvenue"));
-        excelUtils.incrementCount();
-        excelUtils.closeWorkbook();
+        try {
+            excelUtils.incrementCount();
+        } finally {
+            excelUtils.closeWorkbook();
+        }
     }
 
     @When("the login button is clicked without entering credentials")
@@ -196,5 +199,4 @@ public class LoginSteps {
         assertTrue(locator.getLocator("_className_brand_logo").isDisplayed());
         System.out.println("[INFO] Brand logo is visible.");
     }
-
 }
